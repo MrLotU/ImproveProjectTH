@@ -8,7 +8,7 @@ from .models import *
 from .forms import *
 
 def menu_list(request):
-    all_menus = Menu.objects.all()
+    all_menus = Menu.objects.all().prefetch_related('items')
     menus = []
     for menu in all_menus:
         if menu.expiration_date >= timezone.now():
