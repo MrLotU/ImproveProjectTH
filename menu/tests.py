@@ -14,4 +14,14 @@ class MenuTestCase(TestCase):
     def test_detail(self):
         res = self.client.get(reverse('menu_detail', kwargs={'pk': self.menu.pk}))
         self.assertEqual(res.status_code, 200)
-        self.assertContains(res, self.menu.season)
+        self.assertContains(res, self.menu)
+
+    def test_home(self):
+        res = self.client.get(reverse('menu_list'))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, self.menu)
+
+    def test_item_detail(self):
+        res = self.client.get(reverse('item_detail', kwargs={'pk': self.menu.items.first().pk}))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, self.menu.items.first().name)
