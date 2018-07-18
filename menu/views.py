@@ -45,12 +45,11 @@ def edit_menu(request, pk):
     menu = get_object_or_404(Menu, pk=pk)
     form = MenuForm(instance=menu)
     if request.method == "POST":
-        form = MenuForm(request.POST)
+        form = MenuForm(request.POST, instance=menu)
         if form.is_valid():
             menu = form.save(commit=False)
             menu.created_date = timezone.now()
             menu.save()
             form.save_m2m()
             return redirect('menu_list')
-
     return render(request, 'menu/menu_edit.html', {'form': form})
