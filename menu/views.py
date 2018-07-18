@@ -11,7 +11,7 @@ def menu_list(request):
     all_menus = Menu.objects.all().prefetch_related('items')
     menus = []
     for menu in all_menus:
-        if menu.expiration_date >= timezone.now():
+        if menu.expiration_date >= timezone.now().date():
             menus.append(menu)
 
     menus = sorted(menus, key=attrgetter('expiration_date'))
@@ -23,7 +23,7 @@ def menu_detail(request, pk):
 
 def item_detail(request, pk):
     try: 
-        item = Item.objects.get(pk=pk)
+        item = Item.objects.filter(pk=pk).prefetch_related('ingredients').get()
     except ObjectDoesNotExist:
         raise Http404
     return render(request, 'menu/detail_item.html', {'item': item})
@@ -35,6 +35,7 @@ def create_new_menu(request):
             menu = form.save(commit=False)
             menu.created_date = timezone.now()
             menu.save()
+            form.save_m2m()
             return redirect('menu_detail', pk=menu.pk)
     else:
         form = MenuForm()
@@ -42,14 +43,14 @@ def create_new_menu(request):
 
 def edit_menu(request, pk):
     menu = get_object_or_404(Menu, pk=pk)
-    items = Item.objects.all()
+    form = MenuForm(instance=menu)
     if request.method == "POST":
-        menu.season = request.POST.get('season', '')
-        menu.expiration_date = datetime.strptime(request.POST.get('expiration_date', ''), '%m/%d/%Y')
-        menu.items = request.POST.get('items', '')
-        menu.save()
+        form = MenuForm(request.POST)
+        if form.is_valid():
+            menu = form.save(commit=False)
+            menu.created_date = timezone.now()
+            menu.save()
+            form.save_m2m()
+            return redirect('menu_list')
 
-    return render(request, 'menu/change_menu.html', {
-        'menu': menu,
-        'items': items,
-        })
+    return render(request, 'menu/menu_edit.html', {'form': form})

@@ -7,4 +7,4 @@ class MenuForm(forms.ModelForm):
 
     class Meta:
         model = Menu
-        exclude = ('created_date',)
+        fields = ('season', 'items', 'expiration_date')
