@@ -5,11 +5,13 @@ from datetime import datetime
 from .models import Menu, Item, Ingredient
 
 class MenuForm(forms.ModelForm):
+    """Form for creating/updating Menus"""
     class Meta:
         model = Menu
         fields = ('season', 'items', 'expiration_date')
 
     def clean(self):
+        """Clean the form and check the provided date"""
         super().clean()
         expiration_date = self.cleaned_data.get('expiration_date')
         try:
